@@ -9,7 +9,7 @@ minValue int not null default 1
 
 create table Ordered(
 orderNumber serial primary key,
-productType varchar(255) null references Storage(productType) ON DELETE CASCADE,
+productType varchar(255) references Storage(productType) ON DELETE CASCADE,
 fio varchar(255) not null,
 year int not null
 );
