@@ -1,9 +1,8 @@
 package ru.jurfed.presentssystem.domain;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "storage")
@@ -12,19 +11,21 @@ public class Storage {
     public Storage() {
     }
 
-    public Storage(String productType) {
-        this.productType = productType;
-    }
 
     @Id
-    @Column(name = "productType")
+    @Column(name = "product_type")
     private String productType;
 
-    @Column(name = "availableValue")
+    @Column(name = "available_value")
     private Integer availableValue;
 
-    @Column(name = "minValue")
+    @Column(name = "min_value")
     private Integer minValue;
+
+
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinColumn(name = "product_type", referencedColumnName = "product_type")
+    private List<Order> mails = new ArrayList<>();
 
     public String getProductType() {
         return productType;
@@ -48,5 +49,13 @@ public class Storage {
 
     public void setMinValue(Integer minValue) {
         this.minValue = minValue;
+    }
+
+    public List<Order> getMails() {
+        return mails;
+    }
+
+    public void setMails(List<Order> mails) {
+        this.mails = mails;
     }
 }

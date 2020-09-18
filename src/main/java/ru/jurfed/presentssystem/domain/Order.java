@@ -3,7 +3,7 @@ package ru.jurfed.presentssystem.domain;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "Ordered")
+@Table(name = "ordered")
 public class Order {
 
 
@@ -18,11 +18,11 @@ public class Order {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "orderNumber")
+    @Column(name = "order_number")
     private Integer orderNumber;
 
 
-    @Column(name = "productType")
+    @Column(name = "product_type")
     private String productType;
 
     @Column(name = "fio")
