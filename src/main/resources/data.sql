@@ -13,7 +13,7 @@ constraint availableValue_constr check (available_value >= 0 and min_value >= 0)
 
 create table Ordered(
 order_number serial primary key,
-product_type varchar(255) references Storage(product_type) ON DELETE CASCADE,
+o_product_type varchar(255) references Storage(product_type) ON DELETE CASCADE,
 fio varchar(255) not null,
 year int not null,
 released boolean not null default false,
@@ -32,5 +32,5 @@ constraint count_constr check (count > 0)
 insert into Storage(product_type, available_value) values ('bicycle',3);
 insert into Storage(product_type) values ('roller skates');
 
-insert into Ordered(product_type, fio, year) values ('bicycle', 'Ivan',2020);
-insert into Ordered(product_type, fio, year) values ('roller skates', 'Masha',2020);
+insert into Ordered(o_product_type, fio, year) values ('bicycle', 'Ivan',2020);
+insert into Ordered(o_product_type, fio, year) values ('roller skates', 'Masha',2020);
