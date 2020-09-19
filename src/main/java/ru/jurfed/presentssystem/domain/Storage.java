@@ -12,6 +12,10 @@ public class Storage {
     }
 
 
+    public Storage(String productType) {
+        this.productType = productType;
+    }
+
     @Id
     @Column(name = "product_type")
     private String productType;
@@ -24,8 +28,12 @@ public class Storage {
 
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JoinColumn(name = "product_type", referencedColumnName = "product_type")
-    private List<Order> mails = new ArrayList<>();
+    @JoinColumn(name = "o_product_type", referencedColumnName = "product_type")
+    private List<Order> orders = new ArrayList<>();
+
+/*    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinColumn(name = "m_product_type", referencedColumnName = "product_type")
+    private List<Manufacturing> manufacturings = new ArrayList<>();*/
 
     public String getProductType() {
         return productType;
@@ -51,11 +59,19 @@ public class Storage {
         this.minValue = minValue;
     }
 
-    public List<Order> getMails() {
-        return mails;
+    public List<Order> getOrders() {
+        return orders;
     }
 
-    public void setMails(List<Order> mails) {
-        this.mails = mails;
+    public void setOrders(List<Order> orders) {
+        this.orders = orders;
     }
+
+/*    public List<Manufacturing> getManufacturings() {
+        return manufacturings;
+    }
+
+    public void setManufacturings(List<Manufacturing> manufacturings) {
+        this.manufacturings = manufacturings;
+    }*/
 }

@@ -8,6 +8,7 @@ import ru.jurfed.presentssystem.domain.Storage;
 import ru.jurfed.presentssystem.service.IDemeanourService;
 import ru.jurfed.presentssystem.service.InformationSystemDBService;
 
+import java.util.Calendar;
 import java.util.List;
 
 @RestController
@@ -19,34 +20,69 @@ public class InformationSystemRestService {
     @Autowired
     IDemeanourService demeanourService;
 
+    @Autowired
+    ProductionRestService productionRestService;
+
+    Calendar cal = Calendar.getInstance();
 
     @RequestMapping(value = "/newOrder", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public Message newOrder(@RequestBody Order order) {
         String fio = order.getFio();
-        Message message = new Message("dsfsdf");
+        String presentType = order.getProductType();
+        Integer year;
 
-        if(!checkDemeanour(fio)){
-            message.setMsg("error");
+        if (order.getYear() == null) {
+            order.setYear(Calendar.YEAR);
         }
 
-        this.checkAvailablePresents(order.getProductType());
+        year = order.getYear();
+
+
+        Message message = new Message();
+
+        if (!checkDemeanour(fio)) {
+            message.setMsg("Sorry, bad behavior");
+            return message;
+        }
+
+        if (checkPreorder(year, fio)) {
+            message.setMsg("Error: the order already exists");
+            return message;
+        }
+
+
+        boolean presentExists = checkAvailablePresentsForChild(presentType);
+
+        if(!presentExists){
+            productionRestService.sendRequestForCreateProducts(presentType);
+            message.setMsg("The gift is accepted and sent to the factory for production");
+        }else{
+
+            message.setMsg("This gift was sent from the warehouse to the storage");
+        }
+
+
         return message;
     }
+
+    private boolean checkDemeanour(String fio) {
+        return demeanourService.getDemeanour(fio);
+    }
+
+    private boolean checkPreorder(final int year, final String fio) {
+        return informationSystemDBService.checkPreorder(year, fio);
+    }
+
+    private boolean checkAvailablePresentsForChild(String presentType) {
+        return informationSystemDBService.checkProductInStorage(presentType);
+    }
+
 
     @RequestMapping(value = "/getAllProducts", method = RequestMethod.GET)
     public @ResponseBody
     List<Storage> getProducts() {
 
         return informationSystemDBService.getAllProducts();
-    }
-
-
-    private boolean checkDemeanour(String fio) {
-        return demeanourService.getDemeanour(fio);
-    }
-
-    private void checkAvailablePresents(String presentType) {
-        var products = informationSystemDBService.getAllProducts();
     }
 
 

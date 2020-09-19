@@ -1,6 +1,7 @@
 DROP TABLE IF EXISTS Ordered;
+DROP TABLE IF EXISTS Manufacturing;
 DROP TABLE IF EXISTS Storage;
-DROP TABLE IF EXISTS Books;
+
 
 
 create table Storage(
@@ -15,15 +16,17 @@ order_number serial primary key,
 product_type varchar(255) references Storage(product_type) ON DELETE CASCADE,
 fio varchar(255) not null,
 year int not null,
+released boolean not null default false,
 constraint fioYear_constr UNIQUE (fio, year),
 constraint year_constr check (year > 2000)
 );
 
-create table Books(
-boo_id int primary key,
-book_name varchar(255)
+create table Manufacturing(
+request_number serial primary key,
+product_type varchar(255) references Storage(product_type) ON DELETE CASCADE,
+count int not null,
+constraint count_constr check (count > 0)
 );
-
 
 
 insert into Storage(product_type, available_value) values ('bicycle',3);

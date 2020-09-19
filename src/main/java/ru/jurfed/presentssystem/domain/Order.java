@@ -22,7 +22,7 @@ public class Order {
     private Integer orderNumber;
 
 
-    @Column(name = "product_type")
+    @Column(name = "o_product_type")
     private String productType;
 
     @Column(name = "fio")
@@ -31,6 +31,8 @@ public class Order {
     @Column(name = "year")
     private Integer year;
 
+    @Column(name = "released")
+    private boolean released;
 
     public Integer getOrderNumber() {
         return orderNumber;

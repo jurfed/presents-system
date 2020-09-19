@@ -6,10 +6,13 @@ import ru.jurfed.presentssystem.domain.Order;
 import ru.jurfed.presentssystem.domain.Storage;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository("order")
 public interface OrderRepository  extends JpaRepository<Order, Integer> {
 
     List<Order> findAll();
+
+    Optional<Order> findByYearAndAndFio(int year, String fio);
 
 }
