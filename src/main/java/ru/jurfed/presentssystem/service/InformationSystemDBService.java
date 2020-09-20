@@ -1,6 +1,9 @@
 package ru.jurfed.presentssystem.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.boot.context.event.ApplicationStartedEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.http.HttpEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -22,8 +25,8 @@ import java.util.Optional;
 @Service
 public class InformationSystemDBService {
 
-    @PersistenceContext
-    private EntityManager em;
+/*    @PersistenceContext
+    private EntityManager em;*/
 
     @Autowired
     StorageRepository storageRepository;
@@ -79,22 +82,21 @@ public class InformationSystemDBService {
         List<Order> orders = orderRepository.findByProductTypeAndFioAndYearAndReleased(productType, fio, year, false);
 
         if (orders.size() > 0) {
-            EntityTransaction transaction = em.getTransaction();
-            transaction.begin();
+
 
             Order order = orders.get(0);
             order.setReleased(true);
-            em.merge(order);
+            orderRepository.saveAndFlush(order);
+
 
             Optional<Storage> storage = storageRepository.findById(productType);
             storage.ifPresent(storage1 -> {
                 int availableValues = storage1.getAvailableValue();
                 if (availableValues > 0) {
                     storage1.setAvailableValue(--availableValues);
-                    em.merge(storage1);
+                    storageRepository.saveAndFlush(storage1);
                 }
             });
-            transaction.commit();
             checkMinAvailableProducts(productType);
             return orders.get(0);
         }
@@ -104,8 +106,6 @@ public class InformationSystemDBService {
 
     //метод перевода всех необработанных товаров определенного типа со склада в хранилище
     public void transferFromStorageIntoOrder(String presentType) {
-        EntityTransaction transaction = em.getTransaction();
-        transaction.begin();
 
         Optional<Storage> storage = storageRepository.findById(presentType);
         storage.ifPresent(storage1 -> {
@@ -117,14 +117,13 @@ public class InformationSystemDBService {
             for (int i = 0; i < count; i++) {
                 Order order = orders.get(i);
                 order.setReleased(true);
-                em.merge(order);
+                orderRepository.saveAndFlush(order);
             }
 
             storage1.setAvailableValue(storage1.getAvailableValue() - count);
-            em.merge(storage1);
+            storageRepository.saveAndFlush(storage1);
 
         });
-        transaction.commit();
 
         checkMinAvailableProducts(presentType);
     }
@@ -152,7 +151,7 @@ public class InformationSystemDBService {
     //послать запрос на производство и сохранить в manufacturing
     private void sendManufacturingRequest(String productType, int minValue){
         RestTemplate restTemplate = new RestTemplate();
-        final String baseUrl = "http://localhost:" + 8091 + "/manufactured";
+        final String baseUrl = "http://localhost:" + 8092 + "/manufacturing";
 
         Manufacturing manufacturing = addManufacturingRequest(productType, minValue);
         try {
@@ -167,12 +166,10 @@ public class InformationSystemDBService {
     //удалить из manufacturing и обновить значение сделанных товаров в Storage
     public void deleteManufacture(Manufacturing manufacturing) {
 
-        EntityTransaction transaction = em.getTransaction();
-        transaction.begin();
 
         String productType = manufacturing.getProductType();
         Integer count = manufacturing.getCount();
-        em.remove(manufacturing);
+        manufacturingRepository.delete(manufacturing);
 
 
         Optional<Storage> storageOptional = storageRepository.findById(productType);
@@ -180,13 +177,17 @@ public class InformationSystemDBService {
         if (!storageOptional.isEmpty()) {
             Storage storage = storageOptional.get();
             storage.setAvailableValue(storage.getAvailableValue() + count);
-            em.merge(storage);
+            storageRepository.saveAndFlush(storage);
         }
-        transaction.commit();
 
         transferFromStorageIntoOrder(productType);
 
     }
 
+    @EventListener(ApplicationStartedEvent.class)
+    public void doSomethingAfterStartup() {
+        storageRepository.findAll().forEach(storage -> {checkMinAvailableProducts(storage.getProductType());});
+
+    }
 
 }

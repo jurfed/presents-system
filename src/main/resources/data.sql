@@ -29,8 +29,8 @@ constraint count_constr check (count > 0)
 );
 
 
-insert into Storage(product_type, available_value) values ('bicycle',3);
+insert into Storage(product_type, available_value, min_value) values ('bicycle', 3, 30);
 insert into Storage(product_type) values ('roller skates');
 
-insert into Ordered(o_product_type, fio, year) values ('bicycle', 'Ivan',2020);
-insert into Ordered(o_product_type, fio, year) values ('roller skates', 'Masha',2020);
+/*insert into Ordered(o_product_type, fio, year) values ('bicycle', 'Ivan',2020);
+insert into Ordered(o_product_type, fio, year) values ('roller skates', 'Masha',2020);*/

@@ -46,7 +46,7 @@ public class InformationSystemRestService {
         Integer year;
 
         if (order.getYear() == null) {
-            order.setYear(Calendar.YEAR);
+            order.setYear(Calendar.getInstance().get(Calendar.YEAR));
         }
 
         year = order.getYear();
@@ -84,6 +84,7 @@ public class InformationSystemRestService {
     private boolean checkPreorder(final int year, final String fio) {
         return informationSystemDBService.checkPreorder(year, fio);
     }
+
 
 
 }
