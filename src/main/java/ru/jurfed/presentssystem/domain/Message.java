@@ -1,4 +1,4 @@
-package ru.jurfed.presentssystem.rest;
+package ru.jurfed.presentssystem.domain;
 
 
 import com.google.gson.Gson;

@@ -64,11 +64,4 @@ public class Storage {
         this.orders = orders;
     }
 
-/*    public List<Manufacturing> getManufacturings() {
-        return manufacturings;
-    }
-
-    public void setManufacturings(List<Manufacturing> manufacturings) {
-        this.manufacturings = manufacturings;
-    }*/
 }

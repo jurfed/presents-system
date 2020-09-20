@@ -4,21 +4,24 @@ import java.util.List;
 
 public class OrderDto {
 
-    private List<Order> orderList;
+    public OrderDto() {
+    }
 
-    public OrderDto(List<Order> orderList) {
-        this.orderList = orderList;
+    private List<Order> orders;
+
+    public OrderDto(List<Order> orders) {
+        this.orders = orders;
     }
 
     public void addOrder(Order order) {
-        this.orderList.add(order);
+        this.orders.add(order);
     }
 
-    public List<Order> getOrderList() {
-        return orderList;
+    public List<Order> getOrders() {
+        return orders;
     }
 
-    public void setOrderList(List<Order> orderList) {
-        this.orderList = orderList;
+    public void setOrders(List<Order> orders) {
+        this.orders = orders;
     }
 }

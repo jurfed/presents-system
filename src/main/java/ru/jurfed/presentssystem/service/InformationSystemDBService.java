@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import ru.jurfed.presentssystem.domain.Manufacturing;
 import ru.jurfed.presentssystem.domain.Order;
+import ru.jurfed.presentssystem.domain.ProductDto;
 import ru.jurfed.presentssystem.domain.Storage;
 import ru.jurfed.presentssystem.repository.ManufacturingRepository;
 import ru.jurfed.presentssystem.repository.OrderRepository;
@@ -25,8 +26,6 @@ import java.util.Optional;
 @Service
 public class InformationSystemDBService {
 
-/*    @PersistenceContext
-    private EntityManager em;*/
 
     @Autowired
     StorageRepository storageRepository;
@@ -184,10 +183,29 @@ public class InformationSystemDBService {
 
     }
 
+    //метод изменения данных по товарам на складе
+    public void refreshProducts(ProductDto productDto) {
+
+        List<Storage> storages = productDto.getStorages();
+
+        storages.forEach(storage -> {
+            if(storage.getAvailableValue()==null){
+                storage.setAvailableValue(0);
+            }
+            if(storage.getMinValue()==null){
+                storage.setMinValue(1);
+            }
+        });
+
+        storageRepository.saveAll(storages);
+        storageRepository.findAll().forEach(storage -> {checkMinAvailableProducts(storage.getProductType());});
+    }
+
     @EventListener(ApplicationStartedEvent.class)
     public void doSomethingAfterStartup() {
         storageRepository.findAll().forEach(storage -> {checkMinAvailableProducts(storage.getProductType());});
 
     }
+
 
 }
