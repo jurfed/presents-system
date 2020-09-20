@@ -25,54 +25,9 @@ public class InformationSystemRestService {
 
     Calendar cal = Calendar.getInstance();
 
-/*    @RequestMapping(value = "/newOrder", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-    public Message newOrder(@RequestBody Order order) {
-        String fio = order.getFio();
-        String presentType = order.getProductType();
-        Integer year;
-
-        if (order.getYear() == null) {
-            order.setYear(Calendar.YEAR);
-        }
-
-        year = order.getYear();
-
-
-        Message message = new Message();
-
-        if (!checkDemeanour(fio)) {
-            message.setMsg("Sorry, bad behavior");
-            return message;
-        }
-
-        if (checkPreorder(year, fio)) {
-            message.setMsg("Error: the order already exists");
-            return message;
-        }
-
-
-        boolean presentExists = checkAvailablePresentsForChild(presentType);
-
-        if(!presentExists){
-            productionRestService.sendRequestForCreateProducts(presentType);
-            message.setMsg("The gift is accepted and sent to the factory for production");
-        }else{
-
-            message.setMsg("This gift was sent from the warehouse to the storage");
-        }
-
-
-        return message;
-    }*/
 
     private boolean checkDemeanour(String fio) {
         return demeanourService.getDemeanour(fio);
-    }
-
-
-
-    private boolean checkAvailablePresentsForChild(String presentType) {
-        return informationSystemDBService.checkProductInStorage(presentType);
     }
 
 
@@ -111,16 +66,16 @@ public class InformationSystemRestService {
 
         informationSystemDBService.createPreorder(presentType, fio, year);
 
-//        boolean presentExists = checkAvailablePresentsForChild(presentType);
+        boolean presentExists = informationSystemDBService.checkAvailableProducts(presentType);
 
-        if(!presentExists){
-            productionRestService.sendRequestForCreateProducts(presentType);
-            message.setMsg("The gift is accepted and sent to the factory for production");
-        }else{
-
+        if(presentExists){
+            informationSystemDBService.transferOneProductToOrder(presentType, fio, year);
             message.setMsg("This gift was sent from the warehouse to the storage");
-        }
 
+        }else{
+            informationSystemDBService.checkMinAvailableProducts(presentType);
+            message.setMsg("The gift is accepted and sent to the factory for production");
+        }
 
         return message;
     }
@@ -129,8 +84,6 @@ public class InformationSystemRestService {
     private boolean checkPreorder(final int year, final String fio) {
         return informationSystemDBService.checkPreorder(year, fio);
     }
-
-    //метод записи заказа в order и в storage (в случае его отсутствия)
 
 
 }

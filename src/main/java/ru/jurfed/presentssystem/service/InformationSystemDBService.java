@@ -1,6 +1,5 @@
 package ru.jurfed.presentssystem.service;
 
-import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.stereotype.Service;
@@ -43,62 +42,10 @@ public class InformationSystemDBService {
         return orderRepository.findByYearAndAndFio(year, fio).isEmpty();
     }
 
-
-    public boolean checkProductInStorage(String presentType) {
-        int availableValue;
-        Optional<Storage> present = storageRepository.findById(presentType);
-
-        boolean presentExists = !present.isEmpty();
-
-        if (presentExists) {
-            availableValue = present.get().getAvailableValue();
-            if (availableValue <= 0) {
-                presentExists = false;
-            }
-        } else {
-            storageRepository.saveAndFlush(new Storage(presentType));
-        }
-
-
-        return presentExists;
-
-    }
-
-    public List<Manufacturing> getManufacturing(String presentType) {
-        List<Manufacturing> manufacturing = manufacturingRepository.findAllByProductType(presentType);
-        return manufacturing;
-    }
-
-
     public Manufacturing addManufacturingRequest(String productType, Integer count) {
         Manufacturing manufacturing = manufacturingRepository.saveAndFlush(new Manufacturing(productType, count));
         return manufacturing;
     }
-
-    //удалить из manufacturing и обновить значение сделанных товаров в Storage
-    public void deleteManufacture(Manufacturing manufacturing) {
-
-        EntityTransaction transaction = em.getTransaction();
-        transaction.begin();
-
-        String productType = manufacturing.getProductType();
-        Integer count = manufacturing.getCount();
-        em.remove(manufacturing);
-
-
-        Optional<Storage> storageOptional = storageRepository.findById(productType);
-
-        if (!storageOptional.isEmpty()) {
-            Storage storage = storageOptional.get();
-            storage.setAvailableValue(storage.getAvailableValue() + count);
-            em.merge(storage);
-        }
-        transaction.commit();
-
-        transferFromStorageIntoOrder(productType);
-
-    }
-
 
     //метод создания предзаказа и наименования товара на складе (при его отсутствии) ***************************************************************
     public void createPreorder(String productType, String fio, Integer year) {
@@ -148,7 +95,7 @@ public class InformationSystemDBService {
                 }
             });
             transaction.commit();
-
+            checkMinAvailableProducts(productType);
             return orders.get(0);
         }
         return null;
@@ -179,7 +126,7 @@ public class InformationSystemDBService {
         });
         transaction.commit();
 
-//        checkProductInStorage(presentType);
+        checkMinAvailableProducts(presentType);
     }
 
     //проверка минимального кол-ва товара данного типа на складе = available + manufacruring
@@ -215,6 +162,30 @@ public class InformationSystemDBService {
         } catch (URISyntaxException e) {
             e.printStackTrace();
         }
+    }
+
+    //удалить из manufacturing и обновить значение сделанных товаров в Storage
+    public void deleteManufacture(Manufacturing manufacturing) {
+
+        EntityTransaction transaction = em.getTransaction();
+        transaction.begin();
+
+        String productType = manufacturing.getProductType();
+        Integer count = manufacturing.getCount();
+        em.remove(manufacturing);
+
+
+        Optional<Storage> storageOptional = storageRepository.findById(productType);
+
+        if (!storageOptional.isEmpty()) {
+            Storage storage = storageOptional.get();
+            storage.setAvailableValue(storage.getAvailableValue() + count);
+            em.merge(storage);
+        }
+        transaction.commit();
+
+        transferFromStorageIntoOrder(productType);
+
     }
 
 
