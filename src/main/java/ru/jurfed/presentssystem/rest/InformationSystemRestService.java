@@ -54,8 +54,6 @@ public class InformationSystemRestService {
             year = order.getYear();
 
 
-
-
             if (!checkPreorder(year, fio)) {
                 message.setMsg("Error: the order already exists");
                 return message;
@@ -66,7 +64,10 @@ public class InformationSystemRestService {
                 return message;
             }
 
-            informationSystemDBService.createPreorder(presentType, fio, year);
+            if(!informationSystemDBService.createPreorder(presentType, fio, year)){
+                message.setMsg("Error: bad request");
+                return message;
+            }
 
             boolean presentExists = informationSystemDBService.checkAvailableProducts(presentType);
 

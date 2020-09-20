@@ -50,16 +50,27 @@ public class InformationSystemDBService {
     }
 
     //метод создания предзаказа и наименования товара на складе (при его отсутствии) ***************************************************************
-    public void createPreorder(String productType, String fio, Integer year) {
-            Optional<Storage> storage = storageRepository.findById(productType);
+    public boolean createPreorder(String productType, String fio, Integer year) {
 
-            if (storage.isEmpty()) {
-                storageRepository.saveAndFlush(new Storage(productType));
-            }
+        if(productType==null){
+            return false;
+        }
 
-            Order order = new Order(productType, fio, year, false);
-            orderRepository.saveAndFlush(order);
+        Optional<Storage> storage = storageRepository.findById(productType);
 
+        if (storage.isEmpty()) {
+            storageRepository.saveAndFlush(new Storage(productType));
+        }
+
+        if(fio==null){
+            return false;
+        }
+
+        Order order = new Order(productType, fio, year, false);
+        orderRepository.saveAndFlush(order);
+
+
+        return true;
     }
 
     //Метод проверки начилия товара на складе

@@ -12,5 +12,6 @@ public class DemeanourServiceImpl implements IDemeanourService {
     @Override
     public boolean getDemeanour(String fio) {
        return new Random().nextBoolean();
+
     }
 }

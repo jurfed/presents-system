@@ -26,7 +26,6 @@ public class Message {
     }
 
     public Message() {
-        System.out.println();
     }
 
     @Override

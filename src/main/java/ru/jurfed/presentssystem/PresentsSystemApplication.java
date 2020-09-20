@@ -14,8 +14,6 @@ public class PresentsSystemApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(PresentsSystemApplication.class, args);
-		System.out.println();
-
 	}
 
 

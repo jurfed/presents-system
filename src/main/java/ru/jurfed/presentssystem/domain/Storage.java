@@ -14,6 +14,8 @@ public class Storage {
 
     public Storage(String productType) {
         this.productType = productType;
+        this.availableValue = 0;
+        this.minValue = 1;
     }
 
     @Id
