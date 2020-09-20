@@ -1,17 +1,10 @@
 package ru.jurfed.presentssystem.domain;
 
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Controller;
 
-@Controller
-@Scope("prototype")
 public class Message {
     private String msg;
-
-
 
     public Message(String msg) {
         this.msg = msg;

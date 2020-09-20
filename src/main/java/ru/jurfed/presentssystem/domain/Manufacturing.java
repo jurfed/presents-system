@@ -2,7 +2,6 @@ package ru.jurfed.presentssystem.domain;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-
 import javax.persistence.*;
 
 /**
@@ -34,7 +33,6 @@ public class Manufacturing {
 
     @Column(name = "count")
     private Integer count;
-
 
     public Integer getRequestNumber() {
         return requestNumber;

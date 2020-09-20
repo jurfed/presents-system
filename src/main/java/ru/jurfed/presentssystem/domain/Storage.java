@@ -14,7 +14,6 @@ public class Storage {
     public Storage() {
     }
 
-
     public Storage(String productType) {
         this.productType = productType;
         this.availableValue = 0;

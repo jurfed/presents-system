@@ -7,15 +7,18 @@ import org.springframework.boot.context.event.ApplicationStartedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.http.HttpEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 import ru.jurfed.presentssystem.domain.Manufacturing;
 import ru.jurfed.presentssystem.domain.Order;
-import ru.jurfed.presentssystem.domain.ProductDto;
+import ru.jurfed.presentssystem.Dto.ProductDto;
 import ru.jurfed.presentssystem.domain.Storage;
 import ru.jurfed.presentssystem.repository.ManufacturingRepository;
 import ru.jurfed.presentssystem.repository.OrderRepository;
 import ru.jurfed.presentssystem.repository.StorageRepository;
 
+import javax.naming.InvalidNameException;
 import java.net.URI;
 import java.util.List;
 import java.util.Optional;
@@ -24,6 +27,7 @@ import java.util.Optional;
  * Database management service
  */
 @Service
+@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = InvalidNameException.class)
 public class InformationSystemDBService implements IInformationSystemDBService{
 
     private static final Logger logger = LogManager.getLogger(InformationSystemDBService.class);
@@ -249,8 +253,6 @@ public class InformationSystemDBService implements IInformationSystemDBService{
             System.exit(0);
         }
 
-
     }
-
 
 }

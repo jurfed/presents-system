@@ -19,6 +19,5 @@ public class DemeanourServiceImpl implements IDemeanourService {
     public boolean getDemeanour(String fio) {
         logger.info("Getting a child's behavior");
         return new Random().nextBoolean();
-
     }
 }

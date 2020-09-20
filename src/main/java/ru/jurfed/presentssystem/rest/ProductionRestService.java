@@ -32,5 +32,4 @@ public class ProductionRestService implements IProductionRestService{
         logger.info("Presents were received from the factory");
     }
 
-
 }

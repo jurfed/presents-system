@@ -9,7 +9,6 @@ import javax.persistence.*;
  */
 public class Order {
 
-
     public Order() {
     }
 

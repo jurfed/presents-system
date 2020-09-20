@@ -1,7 +1,8 @@
-package ru.jurfed.presentssystem.domain;
+package ru.jurfed.presentssystem.Dto;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import ru.jurfed.presentssystem.domain.Message;
 
 import java.util.List;
 

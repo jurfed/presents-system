@@ -1,4 +1,6 @@
-package ru.jurfed.presentssystem.domain;
+package ru.jurfed.presentssystem.Dto;
+
+import ru.jurfed.presentssystem.domain.Order;
 
 import java.util.List;
 
