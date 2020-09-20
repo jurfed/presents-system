@@ -21,7 +21,7 @@ import java.util.List;
  * For process presents
  */
 @RestController
-public class InformationSystemRestService implements IInformationSystemRest{
+public class InformationSystemRestService implements IInformationSystemRest {
 
     @Autowired
     IInformationSystemDBService informationSystemDBService;
@@ -32,7 +32,7 @@ public class InformationSystemRestService implements IInformationSystemRest{
     @Autowired
     IProductionRestService productionRestService;
 
-    Calendar cal = Calendar.getInstance();
+    private Calendar cal = Calendar.getInstance();
 
     private static final Logger logger = LogManager.getLogger(InformationSystemRestService.class);
 
@@ -59,42 +59,42 @@ public class InformationSystemRestService implements IInformationSystemRest{
     public Message newOrder(@RequestBody Order order) {
         Message message = new Message();
 
-            String fio = order.getFio();
-            String presentType = order.getProductType();
-            Integer year;
+        String fio = order.getFio();
+        String presentType = order.getProductType();
+        Integer year;
 
-            if (order.getYear() == null) {
-                order.setYear(Calendar.getInstance().get(Calendar.YEAR));
-            }
+        if (order.getYear() == null) {
+            order.setYear(Calendar.getInstance().get(Calendar.YEAR));
+        }
 
-            year = order.getYear();
+        year = order.getYear();
 
 
-            if (!checkPreorder(year, fio)) {
-                message.setMsg("Error: the order already exists");
-                return message;
-            }
+        if (!checkPreorder(year, fio)) {
+            message.setMsg("Error: the order already exists");
+            return message;
+        }
 
-            if (!checkDemeanour(fio)) {
-                message.setMsg("Sorry, bad behavior");
-                return message;
-            }
+        if (!checkDemeanour(fio)) {
+            message.setMsg("Sorry, bad behavior");
+            return message;
+        }
 
-            if(!informationSystemDBService.createPreorder(presentType, fio, year)){
-                message.setMsg("Error: bad request");
-                return message;
-            }
+        if (!informationSystemDBService.createPreorder(presentType, fio, year)) {
+            message.setMsg("Error: bad request");
+            return message;
+        }
 
-            boolean presentExists = informationSystemDBService.checkAvailableProducts(presentType);
+        boolean presentExists = informationSystemDBService.checkAvailableProducts(presentType);
 
-            if(presentExists){
-                informationSystemDBService.transferOneProductToOrder(presentType, fio, year);
-                message.setMsg("This gift was sent from the warehouse to the storage");
+        if (presentExists) {
+            informationSystemDBService.transferOneProductToOrder(presentType, fio, year);
+            message.setMsg("This gift was sent from the warehouse to the storage");
 
-            }else{
-                informationSystemDBService.checkMinAvailableProducts(presentType);
-                message.setMsg("The gift is accepted and sent to the factory for production");
-            }
+        } else {
+            informationSystemDBService.checkMinAvailableProducts(presentType);
+            message.setMsg("The gift is accepted and sent to the factory for production");
+        }
 
 
         return message;
@@ -134,9 +134,8 @@ public class InformationSystemRestService implements IInformationSystemRest{
     }
 
     @RequestMapping(value = "/checkAvailableAfterStartUp", method = RequestMethod.GET)
-    public void checkAvailableAfterStartUp(){
+    public void checkAvailableAfterStartUp() {
         informationSystemDBService.checkAvailableAfterStartUp();
     }
-
 
 }

@@ -11,15 +11,11 @@ public interface IInformationSystemDBService {
 
     boolean checkPreorder(int year, String fio);
 
-    Manufacturing addManufacturingRequest(String productType, Integer count);
-
     boolean createPreorder(String productType, String fio, Integer year);
 
     boolean checkAvailableProducts(String productType);
 
     Order transferOneProductToOrder(String productType, String fio, Integer year);
-
-    void transferFromStorageIntoOrder(String presentType);
 
     void checkMinAvailableProducts(String productType);
 

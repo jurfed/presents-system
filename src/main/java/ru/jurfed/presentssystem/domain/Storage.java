@@ -17,6 +17,17 @@ public class Storage {
     public Storage() {
     }
 
+    public Storage(String productType, Integer availableValue, Integer minValue) {
+        this.productType = productType;
+        this.availableValue = availableValue;
+        this.minValue = minValue;
+    }
+
+    public Storage(String productType, Integer minValue) {
+        this.productType = productType;
+        this.minValue = minValue;
+    }
+
     public Storage(String productType) {
         this.productType = productType;
         this.availableValue = 0;

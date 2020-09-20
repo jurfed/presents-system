@@ -2,11 +2,13 @@ package ru.jurfed.presentssystem.Dto;
 
 import ru.jurfed.presentssystem.domain.Order;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class OrderDto {
 
     public OrderDto() {
+        orders = new ArrayList<>();
     }
 
     private List<Order> orders;

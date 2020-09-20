@@ -15,6 +15,7 @@ import org.springframework.web.client.RestTemplate;
 import ru.jurfed.presentssystem.Dto.OrderDto;
 import ru.jurfed.presentssystem.Dto.ProductDto;
 import ru.jurfed.presentssystem.domain.Order;
+import ru.jurfed.presentssystem.domain.Storage;
 import ru.jurfed.presentssystem.repository.OrderRepository;
 import ru.jurfed.presentssystem.repository.StorageRepository;
 import ru.jurfed.presentssystem.service.IDemeanourService;
@@ -135,7 +136,6 @@ class PresentsSystemApplicationTests {
 		orders.add(order3);
 		OrderDto orderDto = new OrderDto(orders);
 
-
 		HttpEntity<OrderDto> requestBody = new HttpEntity(orderDto);
 		restTemplate.postForEntity(uri, requestBody, OrderDto.class);
 
@@ -147,10 +147,57 @@ class PresentsSystemApplicationTests {
 
 		orders = orderRepository.findAll();
 
-
-
 		int releasedOrders = (int) orders.stream().filter(order -> order.isReleased()).count();
 		Assert.assertEquals(3, releasedOrders);
 	}
+
+	@Test
+	void badDemeanour(){
+		RestTemplate restTemplate = new RestTemplate();
+
+		when(demeanourService.getDemeanour("Ivanov Petr Sergeevich")).thenReturn(false);
+		URI uri = null;
+		try {
+			uri = new URI(baseUrl + "/newOrder");
+		} catch (URISyntaxException e) {
+			e.printStackTrace();
+		}
+
+		Order order = new Order("bicycle", "Ivanov Petr Sergeevich", 2019);
+
+		HttpEntity<Order> requestBody = new HttpEntity(order);
+		ResponseEntity<Order> result = restTemplate.postForEntity(uri, requestBody, Order.class);
+
+		Assert.assertEquals(200, result.getStatusCodeValue());
+		Assert.assertEquals(0, orderRepository.findAll().size());
+	}
+
+    @Test
+    void updateMinValuesAndManufacturingProducts(){
+        RestTemplate restTemplate = new RestTemplate();
+
+        URI uri = null;
+        try {
+            uri = new URI(baseUrl + "/refreshProducts");
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+
+        Storage storage = new Storage("roller skates",100);
+        ProductDto productDto = new ProductDto();
+        productDto.addProduct(storage);
+
+        HttpEntity<ProductDto> requestBody = new HttpEntity(productDto);
+        ResponseEntity<ProductDto> result = restTemplate.postForEntity(uri, requestBody, ProductDto.class);
+
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        int availableValue = storageRepository.findById("roller skates").get().getAvailableValue();
+        Assert.assertEquals(100, availableValue);
+    }
 
 }

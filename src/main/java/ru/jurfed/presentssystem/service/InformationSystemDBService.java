@@ -28,9 +28,10 @@ import java.util.Optional;
  */
 @Service
 @Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = InvalidNameException.class)
-public class InformationSystemDBService implements IInformationSystemDBService{
+public class InformationSystemDBService implements IInformationSystemDBService {
 
     private static final Logger logger = LogManager.getLogger(InformationSystemDBService.class);
+    private final String URL = "http://localhost:" + 8092 + "/manufacturing";
 
     @Autowired
     StorageRepository storageRepository;
@@ -50,7 +51,7 @@ public class InformationSystemDBService implements IInformationSystemDBService{
         return orderRepository.findByYearAndFio(year, fio).isEmpty();
     }
 
-    public Manufacturing addManufacturingRequest(String productType, Integer count) {
+    private Manufacturing addManufacturingRequest(String productType, Integer count) {
         Manufacturing manufacturing = manufacturingRepository.saveAndFlush(new Manufacturing(productType, count));
         return manufacturing;
     }
@@ -60,7 +61,7 @@ public class InformationSystemDBService implements IInformationSystemDBService{
      */
     public boolean createPreorder(String productType, String fio, Integer year) {
 
-        if(productType==null){
+        if (productType == null) {
             return false;
         }
 
@@ -70,7 +71,7 @@ public class InformationSystemDBService implements IInformationSystemDBService{
             storageRepository.saveAndFlush(new Storage(productType));
         }
 
-        if(fio==null){
+        if (fio == null) {
             return false;
         }
 
@@ -94,11 +95,10 @@ public class InformationSystemDBService implements IInformationSystemDBService{
 
         logger.info("checking the product in the storage is completed");
         return isProductExists;
-
     }
 
     /**
-     *method for transferring a single present from a storage to a store
+     * method for transferring a single present from a storage to a store
      */
     public Order transferOneProductToOrder(String productType, String fio, Integer year) {
 
@@ -129,7 +129,7 @@ public class InformationSystemDBService implements IInformationSystemDBService{
     /**
      * method for transferring all unprocessed presents of a certain type from a storage to the order
      */
-    public void transferFromStorageIntoOrder(String presentType) {
+    private void transferFromStorageIntoOrder(String presentType) {
 
         Optional<Storage> storage = storageRepository.findById(presentType);
         storage.ifPresent(storage1 -> {
@@ -173,16 +173,15 @@ public class InformationSystemDBService implements IInformationSystemDBService{
     }
 
     /**
-     *
      * send a request for production and save it in manufacturing
      */
     private void sendManufacturingRequest(String productType, int minValue) {
         RestTemplate restTemplate = new RestTemplate();
-        final String baseUrl = "http://localhost:" + 8092 + "/manufacturing";
+
 
         Manufacturing manufacturing = addManufacturingRequest(productType, minValue);
         try {
-            URI uri = new URI(baseUrl);
+            URI uri = new URI(URL);
             HttpEntity<Manufacturing> requestBody = new HttpEntity(manufacturing);
             restTemplate.postForEntity(uri, requestBody, Manufacturing.class);
             logger.info("the present has been sents for production");
@@ -197,12 +196,9 @@ public class InformationSystemDBService implements IInformationSystemDBService{
      * updating the available values of presents in Storage
      */
     public void deleteManufacture(Manufacturing manufacturing) {
-
-
         String productType = manufacturing.getProductType();
         Integer count = manufacturing.getCount();
         manufacturingRepository.delete(manufacturing);
-
 
         Optional<Storage> storageOptional = storageRepository.findById(productType);
 
@@ -213,14 +209,12 @@ public class InformationSystemDBService implements IInformationSystemDBService{
         }
 
         transferFromStorageIntoOrder(productType);
-
     }
 
     /**
      * change the minimum values of the presents
      */
     public void refreshProducts(ProductDto productDto) {
-
         List<Storage> storages = productDto.getStorages();
 
         storages.forEach(storage -> {
@@ -245,11 +239,11 @@ public class InformationSystemDBService implements IInformationSystemDBService{
      */
     @EventListener(ApplicationStartedEvent.class)
     public void checkAvailableAfterStartUp() {
-        try{
+        try {
             storageRepository.findAll().forEach(storage -> {
                 checkMinAvailableProducts(storage.getProductType());
             });
-        }catch (Exception e){
+        } catch (Exception e) {
             logger.error("\n****   Error: manufacturing server doesn't exist. \n****   Please run first manufacturing server");
             System.exit(0);
         }
@@ -259,7 +253,7 @@ public class InformationSystemDBService implements IInformationSystemDBService{
     @Override
     public Storage getOrdersByProductType(String productType) {
         Optional<Storage> storage = storageRepository.findById(productType);
-        if(!storage.isEmpty()){
+        if (!storage.isEmpty()) {
             return storage.get();
         }
         return null;

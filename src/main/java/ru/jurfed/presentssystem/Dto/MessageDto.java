@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import ru.jurfed.presentssystem.domain.Message;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class MessageDto {
@@ -11,6 +12,7 @@ public class MessageDto {
     private List<Message> messages;
 
     public MessageDto() {
+        messages = new ArrayList<>();
     }
 
     public MessageDto(List<Message> messages) {
