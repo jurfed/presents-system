@@ -7,13 +7,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import ru.jurfed.presentssystem.domain.Manufacturing;
-import ru.jurfed.presentssystem.service.InformationSystemDBService;
+import ru.jurfed.presentssystem.service.IInformationSystemDBService;
+
 
 @RestController
-public class ProductionRestService {
+public class ProductionRestService implements IProductionRestService{
 
     @Autowired
-    InformationSystemDBService informationSystemDBService;
+    IInformationSystemDBService informationSystemDBService;
 
 
     //получили ответ от фабрики

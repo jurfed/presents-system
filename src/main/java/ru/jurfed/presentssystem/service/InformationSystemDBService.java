@@ -1,7 +1,8 @@
 package ru.jurfed.presentssystem.service;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.boot.context.event.ApplicationStartedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.http.HttpEntity;
@@ -15,17 +16,14 @@ import ru.jurfed.presentssystem.repository.ManufacturingRepository;
 import ru.jurfed.presentssystem.repository.OrderRepository;
 import ru.jurfed.presentssystem.repository.StorageRepository;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityTransaction;
-import javax.persistence.PersistenceContext;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Optional;
 
 @Service
-public class InformationSystemDBService {
+public class InformationSystemDBService implements IInformationSystemDBService{
 
+    private static final Logger logger = LogManager.getLogger(InformationSystemDBService.class);
 
     @Autowired
     StorageRepository storageRepository;
@@ -168,8 +166,10 @@ public class InformationSystemDBService {
             URI uri = new URI(baseUrl);
             HttpEntity<Manufacturing> requestBody = new HttpEntity(manufacturing);
             restTemplate.postForEntity(uri, requestBody, Manufacturing.class);
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+
+            logger.error("\n****   Error: manufacturing server doesn't exist. \n****   Please run first manufacturing server");
+            System.exit(0);
         }
     }
 
@@ -215,10 +215,16 @@ public class InformationSystemDBService {
     }
 
     @EventListener(ApplicationStartedEvent.class)
-    public void doSomethingAfterStartup() {
-        storageRepository.findAll().forEach(storage -> {
-            checkMinAvailableProducts(storage.getProductType());
-        });
+    public void checkAvailableAfterStartUp() {
+        try{
+            storageRepository.findAll().forEach(storage -> {
+                checkMinAvailableProducts(storage.getProductType());
+            });
+        }catch (Exception e){
+            logger.error("\n****   Error: manufacturing server doesn't exist. \n****   Please run first manufacturing server");
+            System.exit(0);
+        }
+
 
     }
 

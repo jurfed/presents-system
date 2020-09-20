@@ -5,23 +5,24 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import ru.jurfed.presentssystem.domain.*;
 import ru.jurfed.presentssystem.service.IDemeanourService;
-import ru.jurfed.presentssystem.service.InformationSystemDBService;
+import ru.jurfed.presentssystem.service.IInformationSystemDBService;
+
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
 @RestController
-public class InformationSystemRestService {
+public class InformationSystemRestService implements IInformationSystemRest{
 
     @Autowired
-    InformationSystemDBService informationSystemDBService;
+    IInformationSystemDBService informationSystemDBService;
 
     @Autowired
     IDemeanourService demeanourService;
 
     @Autowired
-    ProductionRestService productionRestService;
+    IProductionRestService productionRestService;
 
     Calendar cal = Calendar.getInstance();
 
@@ -32,8 +33,8 @@ public class InformationSystemRestService {
 
 
     @RequestMapping(value = "/getAllProducts", method = RequestMethod.GET)
-    public @ResponseBody
-    List<Storage> getProducts() {
+    @ResponseBody
+    public List<Storage> getProducts() {
 
         return informationSystemDBService.getAllProducts();
     }
@@ -112,6 +113,10 @@ public class InformationSystemRestService {
         return informationSystemDBService.checkPreorder(year, fio);
     }
 
+    @RequestMapping(value = "/checkAvailableAfterStartUp", method = RequestMethod.GET)
+    public void checkAvailableAfterStartUp(){
+        informationSystemDBService.checkAvailableAfterStartUp();
+    }
 
 
 }
