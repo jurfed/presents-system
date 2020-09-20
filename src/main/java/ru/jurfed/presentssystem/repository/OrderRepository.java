@@ -12,7 +12,7 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
 
     List<Order> findAll();
 
-    Optional<Order> findByYearAndAndFio(int year, String fio);
+    Optional<Order> findByYearAndFio(int year, String fio);
 
     List<Order> findByProductTypeAndReleased(String productType, boolean released);
 

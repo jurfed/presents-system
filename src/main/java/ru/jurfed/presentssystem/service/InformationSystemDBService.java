@@ -47,7 +47,7 @@ public class InformationSystemDBService implements IInformationSystemDBService{
     }
 
     public boolean checkPreorder(int year, String fio) {
-        return orderRepository.findByYearAndAndFio(year, fio).isEmpty();
+        return orderRepository.findByYearAndFio(year, fio).isEmpty();
     }
 
     public Manufacturing addManufacturingRequest(String productType, Integer count) {
