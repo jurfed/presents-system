@@ -41,41 +41,44 @@ public class InformationSystemRestService {
     //метод обработки 1-ого заказа
     @RequestMapping(value = "/newOrder", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public Message newOrder(@RequestBody Order order) {
-        String fio = order.getFio();
-        String presentType = order.getProductType();
-        Integer year;
-
-        if (order.getYear() == null) {
-            order.setYear(Calendar.getInstance().get(Calendar.YEAR));
-        }
-
-        year = order.getYear();
-
-
         Message message = new Message();
 
-        if (!checkPreorder(year, fio)) {
-            message.setMsg("Error: the order already exists");
-            return message;
-        }
+            String fio = order.getFio();
+            String presentType = order.getProductType();
+            Integer year;
 
-        if (!checkDemeanour(fio)) {
-            message.setMsg("Sorry, bad behavior");
-            return message;
-        }
+            if (order.getYear() == null) {
+                order.setYear(Calendar.getInstance().get(Calendar.YEAR));
+            }
 
-        informationSystemDBService.createPreorder(presentType, fio, year);
+            year = order.getYear();
 
-        boolean presentExists = informationSystemDBService.checkAvailableProducts(presentType);
 
-        if(presentExists){
-            informationSystemDBService.transferOneProductToOrder(presentType, fio, year);
-            message.setMsg("This gift was sent from the warehouse to the storage");
 
-        }else{
-            informationSystemDBService.checkMinAvailableProducts(presentType);
-            message.setMsg("The gift is accepted and sent to the factory for production");
-        }
+
+            if (!checkPreorder(year, fio)) {
+                message.setMsg("Error: the order already exists");
+                return message;
+            }
+
+            if (!checkDemeanour(fio)) {
+                message.setMsg("Sorry, bad behavior");
+                return message;
+            }
+
+            informationSystemDBService.createPreorder(presentType, fio, year);
+
+            boolean presentExists = informationSystemDBService.checkAvailableProducts(presentType);
+
+            if(presentExists){
+                informationSystemDBService.transferOneProductToOrder(presentType, fio, year);
+                message.setMsg("This gift was sent from the warehouse to the storage");
+
+            }else{
+                informationSystemDBService.checkMinAvailableProducts(presentType);
+                message.setMsg("The gift is accepted and sent to the factory for production");
+            }
+
 
         return message;
     }

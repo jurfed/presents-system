@@ -51,15 +51,15 @@ public class InformationSystemDBService {
 
     //метод создания предзаказа и наименования товара на складе (при его отсутствии) ***************************************************************
     public void createPreorder(String productType, String fio, Integer year) {
+            Optional<Storage> storage = storageRepository.findById(productType);
 
-        Optional<Storage> storage = storageRepository.findById(productType);
+            if (storage.isEmpty()) {
+                storageRepository.saveAndFlush(new Storage(productType));
+            }
 
-        if (storage.isEmpty()) {
-            storageRepository.saveAndFlush(new Storage(productType));
-        }
+            Order order = new Order(productType, fio, year, false);
+            orderRepository.saveAndFlush(order);
 
-        Order order = new Order(productType, fio, year, false);
-        orderRepository.saveAndFlush(order);
     }
 
     //Метод проверки начилия товара на складе
@@ -128,10 +128,10 @@ public class InformationSystemDBService {
     }
 
     //проверка минимального кол-ва товара данного типа на складе = available + manufacruring
-    public void checkMinAvailableProducts(String productType){
+    public void checkMinAvailableProducts(String productType) {
         Optional<Storage> storageOptional = storageRepository.findById(productType);
         int neededToManufacture = 0;
-        if(!storageOptional.isEmpty()){
+        if (!storageOptional.isEmpty()) {
             Storage storage = storageOptional.get();
             int availableValue = storage.getAvailableValue();
             int minValue = storage.getMinValue();
@@ -139,8 +139,8 @@ public class InformationSystemDBService {
             List<Manufacturing> sendingForProductValue = manufacturingRepository.findAllByProductType(productType);
             int manufacturingNow = sendingForProductValue.stream().mapToInt(manufacturing -> manufacturing.getCount()).sum();
 
-            if(availableValue + manufacturingNow < minValue){
-                neededToManufacture = minValue-(availableValue + manufacturingNow);
+            if (availableValue + manufacturingNow < minValue) {
+                neededToManufacture = minValue - (availableValue + manufacturingNow);
                 sendManufacturingRequest(productType, neededToManufacture);
             }
         }
@@ -148,7 +148,7 @@ public class InformationSystemDBService {
     }
 
     //послать запрос на производство и сохранить в manufacturing
-    private void sendManufacturingRequest(String productType, int minValue){
+    private void sendManufacturingRequest(String productType, int minValue) {
         RestTemplate restTemplate = new RestTemplate();
         final String baseUrl = "http://localhost:" + 8092 + "/manufacturing";
 
@@ -156,7 +156,7 @@ public class InformationSystemDBService {
         try {
             URI uri = new URI(baseUrl);
             HttpEntity<Manufacturing> requestBody = new HttpEntity(manufacturing);
-            restTemplate.postForEntity(uri,requestBody,Manufacturing.class);
+            restTemplate.postForEntity(uri, requestBody, Manufacturing.class);
         } catch (URISyntaxException e) {
             e.printStackTrace();
         }
@@ -189,21 +189,25 @@ public class InformationSystemDBService {
         List<Storage> storages = productDto.getStorages();
 
         storages.forEach(storage -> {
-            if(storage.getAvailableValue()==null){
+            if (storage.getAvailableValue() == null) {
                 storage.setAvailableValue(0);
             }
-            if(storage.getMinValue()==null){
+            if (storage.getMinValue() == null) {
                 storage.setMinValue(1);
             }
         });
 
         storageRepository.saveAll(storages);
-        storageRepository.findAll().forEach(storage -> {checkMinAvailableProducts(storage.getProductType());});
+        storageRepository.findAll().forEach(storage -> {
+            checkMinAvailableProducts(storage.getProductType());
+        });
     }
 
     @EventListener(ApplicationStartedEvent.class)
     public void doSomethingAfterStartup() {
-        storageRepository.findAll().forEach(storage -> {checkMinAvailableProducts(storage.getProductType());});
+        storageRepository.findAll().forEach(storage -> {
+            checkMinAvailableProducts(storage.getProductType());
+        });
 
     }
 
