@@ -2,8 +2,6 @@ DROP TABLE IF EXISTS Ordered;
 DROP TABLE IF EXISTS Manufacturing;
 DROP TABLE IF EXISTS Storage;
 
-
-
 create table Storage(
 product_type varchar(255) primary key,
 available_value int not null default 0,
@@ -28,9 +26,5 @@ count int not null,
 constraint count_constr check (count > 0)
 );
 
-
 insert into Storage(product_type, available_value, min_value) values ('bicycle', 3, 30);
 insert into Storage(product_type) values ('roller skates');
-
-/*insert into Ordered(o_product_type, fio, year) values ('bicycle', 'Ivan',2020);
-insert into Ordered(o_product_type, fio, year) values ('roller skates', 'Masha',2020);*/

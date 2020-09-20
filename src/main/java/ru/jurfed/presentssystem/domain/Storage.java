@@ -4,6 +4,9 @@ import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * storage for presents
+ */
 @Entity
 @Table(name = "storage")
 public class Storage {

@@ -4,6 +4,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.Random;
 
+/**
+ * Service determine the behavior of
+ */
 @Service
 public class DemeanourServiceImpl implements IDemeanourService {
 

@@ -10,6 +10,9 @@ import ru.jurfed.presentssystem.domain.Manufacturing;
 import ru.jurfed.presentssystem.service.IInformationSystemDBService;
 
 
+/**
+ * receiving a response from the manufacturing factory
+ */
 @RestController
 public class ProductionRestService implements IProductionRestService{
 

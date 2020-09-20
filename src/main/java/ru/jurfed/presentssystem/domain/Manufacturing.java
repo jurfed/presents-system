@@ -5,6 +5,9 @@ import com.google.gson.GsonBuilder;
 
 import javax.persistence.*;
 
+/**
+ * The Entity of the objects sent to production
+ */
 @Entity
 @Table(name = "manufacturing")
 public class Manufacturing {

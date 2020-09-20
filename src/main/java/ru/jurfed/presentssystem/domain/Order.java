@@ -4,6 +4,9 @@ import javax.persistence.*;
 
 @Entity
 @Table(name = "ordered")
+/**
+ * The Entity for presents sent from warehouse to order
+ */
 public class Order {
 
 

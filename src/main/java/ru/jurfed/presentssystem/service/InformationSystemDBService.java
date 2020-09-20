@@ -20,6 +20,9 @@ import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Database management service
+ */
 @Service
 public class InformationSystemDBService implements IInformationSystemDBService{
 
@@ -47,7 +50,9 @@ public class InformationSystemDBService implements IInformationSystemDBService{
         return manufacturing;
     }
 
-    //метод создания предзаказа и наименования товара на складе (при его отсутствии) ***************************************************************
+    /**
+     * method for creating a pre-order
+     */
     public boolean createPreorder(String productType, String fio, Integer year) {
 
         if(productType==null){
@@ -71,7 +76,9 @@ public class InformationSystemDBService implements IInformationSystemDBService{
         return true;
     }
 
-    //Метод проверки начилия товара на складе
+    /**
+     * Method for checking product availability in storage
+     */
     public boolean checkAvailableProducts(String productType) {
         boolean isProductExists = false;
         Optional<Storage> storage = storageRepository.findById(productType);
@@ -84,7 +91,9 @@ public class InformationSystemDBService implements IInformationSystemDBService{
 
     }
 
-    //метод перевода одного товара со склада в хранилище
+    /**
+     *method for transferring a single present from a storage to a store
+     */
     public Order transferOneProductToOrder(String productType, String fio, Integer year) {
 
         List<Order> orders = orderRepository.findByProductTypeAndFioAndYearAndReleased(productType, fio, year, false);
@@ -111,8 +120,9 @@ public class InformationSystemDBService implements IInformationSystemDBService{
         return null;
     }
 
-
-    //метод перевода всех необработанных товаров определенного типа со склада в хранилище
+    /**
+     * method for transferring all unprocessed presents of a certain type from a storage to a store
+     */
     public void transferFromStorageIntoOrder(String presentType) {
 
         Optional<Storage> storage = storageRepository.findById(presentType);
@@ -136,7 +146,9 @@ public class InformationSystemDBService implements IInformationSystemDBService{
         checkMinAvailableProducts(presentType);
     }
 
-    //проверка минимального кол-ва товара данного типа на складе = available + manufacruring
+    /**
+     * checking the minimum quantity of this type of product in stock = available + manufacturing
+     */
     public void checkMinAvailableProducts(String productType) {
         Optional<Storage> storageOptional = storageRepository.findById(productType);
         int neededToManufacture = 0;
@@ -156,7 +168,10 @@ public class InformationSystemDBService implements IInformationSystemDBService{
 
     }
 
-    //послать запрос на производство и сохранить в manufacturing
+    /**
+     *
+     * send a request for production and save it in manufacturing
+     */
     private void sendManufacturingRequest(String productType, int minValue) {
         RestTemplate restTemplate = new RestTemplate();
         final String baseUrl = "http://localhost:" + 8092 + "/manufacturing";
@@ -173,7 +188,9 @@ public class InformationSystemDBService implements IInformationSystemDBService{
         }
     }
 
-    //удалить из manufacturing и обновить значение сделанных товаров в Storage
+    /**
+     * updating the available values of presents in Storage
+     */
     public void deleteManufacture(Manufacturing manufacturing) {
 
 
@@ -194,7 +211,9 @@ public class InformationSystemDBService implements IInformationSystemDBService{
 
     }
 
-    //метод изменения данных по товарам на складе
+    /**
+     * change the minimum values of the presents
+     */
     public void refreshProducts(ProductDto productDto) {
 
         List<Storage> storages = productDto.getStorages();
@@ -214,6 +233,9 @@ public class InformationSystemDBService implements IInformationSystemDBService{
         });
     }
 
+    /**
+     * determining the minimum number of orders in stock
+     */
     @EventListener(ApplicationStartedEvent.class)
     public void checkAvailableAfterStartUp() {
         try{
