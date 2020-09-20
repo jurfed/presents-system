@@ -9,12 +9,14 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository("order")
-public interface OrderRepository  extends JpaRepository<Order, Integer> {
+public interface OrderRepository extends JpaRepository<Order, Integer> {
 
     List<Order> findAll();
 
     Optional<Order> findByYearAndAndFio(int year, String fio);
 
-    List<Order> findByProductTypeAndReleased(String productType,boolean released);
+    List<Order> findByProductTypeAndReleased(String productType, boolean released);
+
+    List<Order> findByProductTypeAndFioAndYearAndReleased(String productType, String fio, int year, boolean released);
 
 }

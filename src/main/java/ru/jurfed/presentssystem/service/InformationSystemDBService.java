@@ -2,7 +2,9 @@ package ru.jurfed.presentssystem.service;
 
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 import ru.jurfed.presentssystem.domain.Manufacturing;
 import ru.jurfed.presentssystem.domain.Order;
 import ru.jurfed.presentssystem.domain.Storage;
@@ -13,6 +15,8 @@ import ru.jurfed.presentssystem.repository.StorageRepository;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 import javax.persistence.PersistenceContext;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Optional;
 
@@ -39,14 +43,6 @@ public class InformationSystemDBService {
         return orderRepository.findByYearAndAndFio(year, fio).isEmpty();
     }
 
-    public Storage getPresent(String presentType) {
-        Optional<Storage> present = storageRepository.findById(presentType);
-        if (present.isEmpty()) {
-            storageRepository.saveAndFlush(new Storage(presentType));
-        }
-        return present.get();
-
-    }
 
     public boolean checkProductInStorage(String presentType) {
         int availableValue;
@@ -103,7 +99,63 @@ public class InformationSystemDBService {
 
     }
 
-//перенести товар со склада в заказы и обновить кол-во доступных, а затем выполнить проверку
+
+    //метод создания предзаказа и наименования товара на складе (при его отсутствии) ***************************************************************
+    public void createPreorder(String productType, String fio, Integer year) {
+
+        Optional<Storage> storage = storageRepository.findById(productType);
+
+        if (storage.isEmpty()) {
+            storageRepository.saveAndFlush(new Storage(productType));
+        }
+
+        Order order = new Order(productType, fio, year, false);
+        orderRepository.saveAndFlush(order);
+    }
+
+    //Метод проверки начилия товара на складе
+    public boolean checkAvailableProducts(String productType) {
+        boolean isProductExists = false;
+        Optional<Storage> storage = storageRepository.findById(productType);
+
+        if (!storage.isEmpty() && storage.get().getAvailableValue() > 0) {
+            isProductExists = true;
+        }
+
+        return isProductExists;
+
+    }
+
+    //метод перевода одного товара со склада в хранилище
+    public Order transferOneProductToOrder(String productType, String fio, Integer year) {
+
+        List<Order> orders = orderRepository.findByProductTypeAndFioAndYearAndReleased(productType, fio, year, false);
+
+        if (orders.size() > 0) {
+            EntityTransaction transaction = em.getTransaction();
+            transaction.begin();
+
+            Order order = orders.get(0);
+            order.setReleased(true);
+            em.merge(order);
+
+            Optional<Storage> storage = storageRepository.findById(productType);
+            storage.ifPresent(storage1 -> {
+                int availableValues = storage1.getAvailableValue();
+                if (availableValues > 0) {
+                    storage1.setAvailableValue(--availableValues);
+                    em.merge(storage1);
+                }
+            });
+            transaction.commit();
+
+            return orders.get(0);
+        }
+        return null;
+    }
+
+
+    //метод перевода всех необработанных товаров определенного типа со склада в хранилище
     public void transferFromStorageIntoOrder(String presentType) {
         EntityTransaction transaction = em.getTransaction();
         transaction.begin();
@@ -111,11 +163,11 @@ public class InformationSystemDBService {
         Optional<Storage> storage = storageRepository.findById(presentType);
         storage.ifPresent(storage1 -> {
             int availableValue = storage1.getAvailableValue();
-            List<Order> orders = orderRepository.findByProductTypeAndReleased(presentType,false);
+            List<Order> orders = orderRepository.findByProductTypeAndReleased(presentType, false);
 
             int count = availableValue <= orders.size() ? availableValue : orders.size();
 
-            for(int i=0;i<count; i++){
+            for (int i = 0; i < count; i++) {
                 Order order = orders.get(i);
                 order.setReleased(true);
                 em.merge(order);
@@ -129,5 +181,41 @@ public class InformationSystemDBService {
 
 //        checkProductInStorage(presentType);
     }
+
+    //проверка минимального кол-ва товара данного типа на складе = available + manufacruring
+    public void checkMinAvailableProducts(String productType){
+        Optional<Storage> storageOptional = storageRepository.findById(productType);
+        int neededToManufacture = 0;
+        if(!storageOptional.isEmpty()){
+            Storage storage = storageOptional.get();
+            int availableValue = storage.getAvailableValue();
+            int minValue = storage.getMinValue();
+
+            List<Manufacturing> sendingForProductValue = manufacturingRepository.findAllByProductType(productType);
+            int manufacturingNow = sendingForProductValue.stream().mapToInt(manufacturing -> manufacturing.getCount()).sum();
+
+            if(availableValue + manufacturingNow < minValue){
+                neededToManufacture = minValue-(availableValue + manufacturingNow);
+                sendManufacturingRequest(productType, neededToManufacture);
+            }
+        }
+
+    }
+
+    //послать запрос на производство и сохранить в manufacturing
+    private void sendManufacturingRequest(String productType, int minValue){
+        RestTemplate restTemplate = new RestTemplate();
+        final String baseUrl = "http://localhost:" + 8091 + "/manufactured";
+
+        Manufacturing manufacturing = addManufacturingRequest(productType, minValue);
+        try {
+            URI uri = new URI(baseUrl);
+            HttpEntity<Manufacturing> requestBody = new HttpEntity(manufacturing);
+            restTemplate.postForEntity(uri,requestBody,Manufacturing.class);
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+    }
+
 
 }

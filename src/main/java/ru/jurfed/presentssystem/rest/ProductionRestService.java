@@ -22,45 +22,13 @@ public class ProductionRestService {
     @Autowired
     InformationSystemDBService informationSystemDBService;
 
-    void sendRequestForCreateProducts(String productType){
-
-        Storage storage = informationSystemDBService.getPresent(productType);
-        int availableValue = storage.getAvailableValue();
-        int minValue = storage.getMinValue();
-        List<Manufacturing> sendingForProductValue = informationSystemDBService.getManufacturing(productType);
-        int manufacturingValue = (int) sendingForProductValue.stream().map(manufacturing -> manufacturing.getCount()).count();
-
-        if(availableValue + manufacturingValue < minValue){
-            sendManufacturingRequest(productType, minValue);
-        }
-
-    }
-
-    //послать запрос на производство и сохранить в manufacturing
-    private void sendManufacturingRequest(String productType, int minValue){
-        RestTemplate restTemplate = new RestTemplate();
-        final String baseUrl = "http://localhost:" + 8091 + "/manufactured";
-
-        Manufacturing manufacturing = informationSystemDBService.addManufacturingRequest(productType, minValue);
-        try {
-            URI uri = new URI(baseUrl);
-            HttpEntity<Manufacturing> requestBody = new HttpEntity(manufacturing);
-            restTemplate.postForEntity(uri,requestBody,Manufacturing.class);
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-        }
-
-    }
 
     //получили ответ от фабрики
     @RequestMapping(value = "/manufactured", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public void sendPresentToOrder(@RequestBody Manufacturing manufacturing) {
         informationSystemDBService.deleteManufacture(manufacturing);
-        System.out.println();
-//        informationSystemDBService.updateStorage;
+
     }
-
-
 
 
 }

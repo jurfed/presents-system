@@ -16,6 +16,13 @@ public class Order {
         this.year = year;
     }
 
+    public Order(String productType, String fio, Integer year, boolean released) {
+        this.productType = productType;
+        this.fio = fio;
+        this.year = year;
+        this.released = released;
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "order_number")
