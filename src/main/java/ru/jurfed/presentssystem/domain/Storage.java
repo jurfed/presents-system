@@ -32,7 +32,7 @@ public class Storage {
     private Integer minValue;
 
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "o_product_type", referencedColumnName = "product_type")
     private List<Order> orders = new ArrayList<>();
 

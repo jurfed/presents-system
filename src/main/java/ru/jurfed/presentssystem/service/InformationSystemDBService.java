@@ -72,7 +72,7 @@ public class InformationSystemDBService implements IInformationSystemDBService{
         Order order = new Order(productType, fio, year, false);
         orderRepository.saveAndFlush(order);
 
-
+        logger.info("Pre-order was created");
         return true;
     }
 
@@ -87,6 +87,7 @@ public class InformationSystemDBService implements IInformationSystemDBService{
             isProductExists = true;
         }
 
+        logger.info("checking the product in the storage is completed");
         return isProductExists;
 
     }
@@ -100,11 +101,9 @@ public class InformationSystemDBService implements IInformationSystemDBService{
 
         if (orders.size() > 0) {
 
-
             Order order = orders.get(0);
             order.setReleased(true);
             orderRepository.saveAndFlush(order);
-
 
             Optional<Storage> storage = storageRepository.findById(productType);
             storage.ifPresent(storage1 -> {
@@ -115,13 +114,15 @@ public class InformationSystemDBService implements IInformationSystemDBService{
                 }
             });
             checkMinAvailableProducts(productType);
+            logger.info("the present is moved to the order");
             return orders.get(0);
         }
+        logger.error("error: the present is not found");
         return null;
     }
 
     /**
-     * method for transferring all unprocessed presents of a certain type from a storage to a store
+     * method for transferring all unprocessed presents of a certain type from a storage to the order
      */
     public void transferFromStorageIntoOrder(String presentType) {
 
@@ -129,7 +130,6 @@ public class InformationSystemDBService implements IInformationSystemDBService{
         storage.ifPresent(storage1 -> {
             int availableValue = storage1.getAvailableValue();
             List<Order> orders = orderRepository.findByProductTypeAndReleased(presentType, false);
-
             int count = availableValue <= orders.size() ? availableValue : orders.size();
 
             for (int i = 0; i < count; i++) {
@@ -140,14 +140,13 @@ public class InformationSystemDBService implements IInformationSystemDBService{
 
             storage1.setAvailableValue(storage1.getAvailableValue() - count);
             storageRepository.saveAndFlush(storage1);
-
         });
-
+        logger.info("all unprocessed presents where moved from a storage to order");
         checkMinAvailableProducts(presentType);
     }
 
     /**
-     * checking the minimum quantity of this type of product in stock = available + manufacturing
+     * checking the minimum quantity of this type of present in stock = available + manufacturing
      */
     public void checkMinAvailableProducts(String productType) {
         Optional<Storage> storageOptional = storageRepository.findById(productType);
@@ -165,7 +164,7 @@ public class InformationSystemDBService implements IInformationSystemDBService{
                 sendManufacturingRequest(productType, neededToManufacture);
             }
         }
-
+        logger.info("the minimum quantity of this type of present was checked");
     }
 
     /**
@@ -181,6 +180,7 @@ public class InformationSystemDBService implements IInformationSystemDBService{
             URI uri = new URI(baseUrl);
             HttpEntity<Manufacturing> requestBody = new HttpEntity(manufacturing);
             restTemplate.postForEntity(uri, requestBody, Manufacturing.class);
+            logger.info("the present has been sents for production");
         } catch (Exception e) {
 
             logger.error("\n****   Error: manufacturing server doesn't exist. \n****   Please run first manufacturing server");
@@ -231,6 +231,8 @@ public class InformationSystemDBService implements IInformationSystemDBService{
         storageRepository.findAll().forEach(storage -> {
             checkMinAvailableProducts(storage.getProductType());
         });
+
+        logger.info("minimum values changed");
     }
 
     /**
