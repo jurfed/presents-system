@@ -65,4 +65,12 @@ public class Order {
     public void setYear(Integer year) {
         this.year = year;
     }
+
+    public boolean isReleased() {
+        return released;
+    }
+
+    public void setReleased(boolean released) {
+        this.released = released;
+    }
 }

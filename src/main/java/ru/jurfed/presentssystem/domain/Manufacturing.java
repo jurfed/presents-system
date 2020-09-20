@@ -1,5 +1,8 @@
 package ru.jurfed.presentssystem.domain;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 import javax.persistence.*;
 
 @Entity
@@ -11,6 +14,10 @@ public class Manufacturing {
 
     public Manufacturing(String productType, Integer count) {
         this.productType = productType;
+        this.count = count;
+    }
+
+    public Manufacturing(Integer count) {
         this.count = count;
     }
 
@@ -48,5 +55,13 @@ public class Manufacturing {
 
     public void setCount(Integer count) {
         this.count = count;
+    }
+
+    @Override
+    public String toString() {
+        Gson gson = new GsonBuilder()
+                .excludeFieldsWithoutExposeAnnotation()
+                .create();
+        return gson.toJson(this);
     }
 }

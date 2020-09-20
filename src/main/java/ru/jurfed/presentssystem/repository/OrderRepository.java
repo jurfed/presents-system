@@ -15,4 +15,6 @@ public interface OrderRepository  extends JpaRepository<Order, Integer> {
 
     Optional<Order> findByYearAndAndFio(int year, String fio);
 
+    List<Order> findByProductTypeAndReleased(String productType,boolean released);
+
 }

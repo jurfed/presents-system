@@ -31,9 +31,6 @@ public class Storage {
     @JoinColumn(name = "o_product_type", referencedColumnName = "product_type")
     private List<Order> orders = new ArrayList<>();
 
-/*    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JoinColumn(name = "m_product_type", referencedColumnName = "product_type")
-    private List<Manufacturing> manufacturings = new ArrayList<>();*/
 
     public String getProductType() {
         return productType;
