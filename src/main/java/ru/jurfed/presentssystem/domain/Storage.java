@@ -1,5 +1,8 @@
 package ru.jurfed.presentssystem.domain;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -66,6 +69,14 @@ public class Storage {
 
     public void setOrders(List<Order> orders) {
         this.orders = orders;
+    }
+
+    @Override
+    public String toString() {
+        Gson gson = new GsonBuilder()
+                .excludeFieldsWithoutExposeAnnotation()
+                .create();
+        return gson.toJson(this);
     }
 
 }

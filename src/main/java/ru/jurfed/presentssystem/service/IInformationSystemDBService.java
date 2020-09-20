@@ -5,11 +5,9 @@ import ru.jurfed.presentssystem.domain.Order;
 import ru.jurfed.presentssystem.Dto.ProductDto;
 import ru.jurfed.presentssystem.domain.Storage;
 
-import java.util.List;
-
 public interface IInformationSystemDBService {
 
-    List<Storage> getAllProducts();
+    ProductDto getAllProducts();
 
     boolean checkPreorder(int year, String fio);
 
@@ -31,4 +29,5 @@ public interface IInformationSystemDBService {
 
     void checkAvailableAfterStartUp();
 
+    Storage getOrdersByProductType(String productType);
 }

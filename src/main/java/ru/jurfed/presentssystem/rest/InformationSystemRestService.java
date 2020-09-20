@@ -4,6 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import ru.jurfed.presentssystem.Dto.MessageDto;
 import ru.jurfed.presentssystem.Dto.OrderDto;
@@ -41,8 +42,14 @@ public class InformationSystemRestService implements IInformationSystemRest{
 
     @RequestMapping(value = "/getAllProducts", method = RequestMethod.GET)
     @ResponseBody
-    public List<Storage> getProducts() {
+    public ProductDto getProducts() {
         return informationSystemDBService.getAllProducts();
+    }
+
+
+    @GetMapping("/getOrdersByProductType")
+    public Storage delete(@RequestParam("productType") String productType) {
+        return informationSystemDBService.getOrdersByProductType(productType);
     }
 
     /**

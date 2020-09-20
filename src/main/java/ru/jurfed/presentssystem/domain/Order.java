@@ -1,5 +1,8 @@
 package ru.jurfed.presentssystem.domain;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 import javax.persistence.*;
 
 @Entity
@@ -81,5 +84,13 @@ public class Order {
 
     public void setReleased(boolean released) {
         this.released = released;
+    }
+
+    @Override
+    public String toString() {
+        Gson gson = new GsonBuilder()
+                .excludeFieldsWithoutExposeAnnotation()
+                .create();
+        return gson.toJson(this);
     }
 }

@@ -41,8 +41,9 @@ public class InformationSystemDBService implements IInformationSystemDBService{
     @Autowired
     ManufacturingRepository manufacturingRepository;
 
-    public List<Storage> getAllProducts() {
-        return storageRepository.findAll();
+    public ProductDto getAllProducts() {
+        ProductDto productDto = new ProductDto(storageRepository.findAll());
+        return productDto;
     }
 
     public boolean checkPreorder(int year, String fio) {
@@ -252,6 +253,16 @@ public class InformationSystemDBService implements IInformationSystemDBService{
             logger.error("\n****   Error: manufacturing server doesn't exist. \n****   Please run first manufacturing server");
             System.exit(0);
         }
+
+    }
+
+    @Override
+    public Storage getOrdersByProductType(String productType) {
+        Optional<Storage> storage = storageRepository.findById(productType);
+        if(!storage.isEmpty()){
+            return storage.get();
+        }
+        return null;
 
     }
 

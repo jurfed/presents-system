@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface IInformationSystemRest {
 
-    List<Storage> getProducts();
+    ProductDto getProducts();
 
     Message newOrder(@RequestBody Order order);
 
