@@ -133,9 +133,9 @@ public class InformationSystemRestService implements IInformationSystemRest {
         return informationSystemDBService.checkPreorder(year, fio);
     }
 
-    @RequestMapping(value = "/checkAvailableAfterStartUp", method = RequestMethod.GET)
+/*    @RequestMapping(value = "/checkAvailableAfterStartUp", method = RequestMethod.GET)
     public void checkAvailableAfterStartUp() {
         informationSystemDBService.checkAvailableAfterStartUp();
-    }
+    }*/
 
 }

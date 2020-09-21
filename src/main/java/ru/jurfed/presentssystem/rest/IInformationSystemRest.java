@@ -17,6 +17,6 @@ public interface IInformationSystemRest {
 
     Message refreshProducts(@RequestBody ProductDto productDto);
 
-    public void checkAvailableAfterStartUp();
+//    public void checkAvailableAfterStartUp();
 
 }
