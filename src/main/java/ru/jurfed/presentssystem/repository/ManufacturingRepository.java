@@ -12,5 +12,6 @@ import java.util.Optional;
 public interface ManufacturingRepository extends JpaRepository<Manufacturing, Integer> {
 
     List<Manufacturing> findAllByProductType(String productType);
+    List<Manufacturing> findByWasSend(boolean wasSend);
 
 }

@@ -26,4 +26,6 @@ public interface IInformationSystemDBService {
     void checkAvailableAfterStartUp();
 
     Storage getOrdersByProductType(String productType);
+
+    void checkUnsentManufacturingRequests();
 }

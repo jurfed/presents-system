@@ -22,6 +22,7 @@ import javax.naming.InvalidNameException;
 import java.net.URI;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Database management service
@@ -166,31 +167,35 @@ public class InformationSystemDBService implements IInformationSystemDBService {
 
             if (availableValue + manufacturingNow < minValue) {
                 neededToManufacture = minValue - (availableValue + manufacturingNow);
-                sendManufacturingRequest(productType, neededToManufacture);
+                sendRequestToManufacture(new Manufacturing(productType, neededToManufacture));
             }
         }
         logger.info("the minimum quantity of this type of present was checked");
     }
 
+
     /**
      * send a request for production and save it in manufacturing
      */
-    private void sendManufacturingRequest(String productType, int minValue) {
+    private boolean sendRequestToManufacture(Manufacturing manufacturing) {
+        manufacturingRepository.save(manufacturing);
         RestTemplate restTemplate = new RestTemplate();
-
-
-        Manufacturing manufacturing = addManufacturingRequest(productType, minValue);
+        boolean successfulSenfing;
+        URI uri = null;
         try {
-            URI uri = new URI(URL);
+            uri = new URI(URL);
             HttpEntity<Manufacturing> requestBody = new HttpEntity(manufacturing);
             restTemplate.postForEntity(uri, requestBody, Manufacturing.class);
-            logger.info("the present has been sents for production");
+            successfulSenfing = true;
+            manufacturingRepository.save(manufacturing);
         } catch (Exception e) {
-
-            logger.error("\n****   Error: manufacturing server doesn't exist. \n****   Please run first manufacturing server");
-            System.exit(0);
+            successfulSenfing = false;
+            logger.error("\n****   Error: manufacturing server doesn't exist.");
+            manufacturing.setWasSend(false);
         }
+        return successfulSenfing;
     }
+
 
     /**
      * updating the available values of presents in Storage
@@ -234,6 +239,17 @@ public class InformationSystemDBService implements IInformationSystemDBService {
         logger.info("minimum values changed");
     }
 
+
+    @Override
+    public Storage getOrdersByProductType(String productType) {
+        Optional<Storage> storage = storageRepository.findById(productType);
+        if (!storage.isEmpty()) {
+            return storage.get();
+        }
+        return null;
+
+    }
+
     /**
      * determining the minimum number of orders in stock
      */
@@ -245,19 +261,19 @@ public class InformationSystemDBService implements IInformationSystemDBService {
             });
         } catch (Exception e) {
             logger.error("\n****   Error: manufacturing server doesn't exist. \n****   Please run first manufacturing server");
-            System.exit(0);
         }
 
     }
 
-    @Override
-    public Storage getOrdersByProductType(String productType) {
-        Optional<Storage> storage = storageRepository.findById(productType);
-        if (!storage.isEmpty()) {
-            return storage.get();
-        }
-        return null;
+    public void checkUnsentManufacturingRequests() {
+        List<Manufacturing> wasNotSendingRequests = manufacturingRepository.findByWasSend(false);
 
+        List<Manufacturing> wasNotSending = wasNotSendingRequests.stream()
+                .filter(manufacturing -> manufacturing.isWasSend() == false)
+                .collect(Collectors.toList());
+        wasNotSending.forEach(manufacturing -> {
+            sendRequestToManufacture(manufacturing);
+        });
     }
 
 }

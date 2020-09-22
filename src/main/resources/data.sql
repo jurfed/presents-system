@@ -22,6 +22,7 @@ constraint year_constr check (year > 2000)
 create table Manufacturing(
 request_number serial primary key,
 m_product_type varchar(255) references Storage(product_type) ON DELETE CASCADE,
+was_send boolean not null default false,
 count int not null,
 constraint count_constr check (count > 0)
 );

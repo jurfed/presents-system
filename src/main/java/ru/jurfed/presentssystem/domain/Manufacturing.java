@@ -19,6 +19,12 @@ public class Manufacturing {
         this.count = count;
     }
 
+    public Manufacturing(String productType, Integer count, boolean wasSend) {
+        this.productType = productType;
+        this.count = count;
+        this.wasSend = wasSend;
+    }
+
     public Manufacturing(Integer count) {
         this.count = count;
     }
@@ -33,6 +39,9 @@ public class Manufacturing {
 
     @Column(name = "count")
     private Integer count;
+
+    @Column (name="was_send")
+    private boolean wasSend;
 
     public Integer getRequestNumber() {
         return requestNumber;
@@ -56,6 +65,14 @@ public class Manufacturing {
 
     public void setCount(Integer count) {
         this.count = count;
+    }
+
+    public boolean isWasSend() {
+        return wasSend;
+    }
+
+    public void setWasSend(boolean wasSend) {
+        this.wasSend = wasSend;
     }
 
     @Override
